@@ -17,12 +17,15 @@ type Sequent struct {
 
 // Reverse Weakening Left Rule
 func ReverseWeakeningL(sequent Sequent, formulaIndex int) Sequent {
-	newLeft := make([]Formula, 0)
+	//TODO
+	newLeft := sequent.Left[1:]
+	/*
 	for i, formula := range sequent.Left {
 		if i != formulaIndex {
 			newLeft = append(newLeft, formula)
 		}
 	}
+	*/
 
 	newSequent := Sequent{
 		Left:  newLeft,
@@ -149,6 +152,7 @@ func ImplicationR(sequent Sequent, formulaIndex int /*the tail*/) Sequent {
 			tt := Formula{Content: phi}
 			newLeft := append([]Formula{tt}, sequent.Left...)
 			newRight := sequent.Right[:len(sequent.Right)-1]
+			newRight = append(newRight, Formula{psi})
 
 			newSequent := Sequent{
 				Left:  newLeft,
@@ -216,6 +220,49 @@ func ConjunctionL2(sequent Sequent, formulaIndex int) Sequent {
 
 
 func main() {
+
+
+	{
+	   gamma := []Formula{}
+	   delta := []Formula{{Content: "A ⊃  B ∨  B ⊃  A"}}
+
+	   sequent := Sequent{Left: gamma, Right: delta}
+
+	   //contR
+	   t := ReverseContractionR(sequent,len(sequent.Right)-1)
+	   fmt.Println(t)
+	   // R1
+	   t = ReverseDisjunctionR1(t,len(t.Right)-1)
+	   fmt.Println(t)
+
+	    t = ReverseExchangeR(t,0,1)
+	   fmt.Println(t)
+
+	   t = ReverseDisjunctionR2(t,len(t.Right)-1)
+	   fmt.Println(t)
+
+	   t = ImplicationR(t,len(t.Right)-1)
+	   fmt.Println(t)
+
+	   t = ReverseExchangeR(t,0,1)
+	   fmt.Println(t)
+
+	   t = ImplicationR(t,len(t.Right)-1)
+	   fmt.Println(t)
+
+	   t = ReverseExchangeL(t, 0,1)
+	   fmt.Println(t)
+
+	   t = ReverseWeakeningL(t,0)
+	   fmt.Println(t)
+
+	   t = ReverseWeakeningR(t,len(t.Right)-1)
+	   fmt.Println(t)
+
+	}
+		// ⊃
+	   
+	return
 	/*
 	   // Example usage
 	   gamma := []Formula{{Content: "A"}, {Content: "B"}}

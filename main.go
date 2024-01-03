@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+
 )
 
 // Define the data structures for Formula and Sequent
@@ -16,16 +17,8 @@ type Sequent struct {
 }
 
 // Reverse Weakening Left Rule
-func ReverseWeakeningL(sequent Sequent, formulaIndex int) Sequent {
-	//TODO
+func ReverseWeakeningL(sequent Sequent) Sequent {
 	newLeft := sequent.Left[1:]
-	/*
-	for i, formula := range sequent.Left {
-		if i != formulaIndex {
-			newLeft = append(newLeft, formula)
-		}
-	}
-	*/
 
 	newSequent := Sequent{
 		Left:  newLeft,
@@ -35,13 +28,8 @@ func ReverseWeakeningL(sequent Sequent, formulaIndex int) Sequent {
 }
 
 // Reverse Weakening Right Rule
-func ReverseWeakeningR(sequent Sequent, formulaIndex int) Sequent {
-	newRight := make([]Formula, 0)
-	for i, formula := range sequent.Right {
-		if i != formulaIndex {
-			newRight = append(newRight, formula)
-		}
-	}
+func ReverseWeakeningR(sequent Sequent) Sequent {
+	newRight := sequent.Right[:len(sequent.Right)-1]
 
 	newSequent := Sequent{
 		Left:  sequent.Left,
@@ -51,7 +39,8 @@ func ReverseWeakeningR(sequent Sequent, formulaIndex int) Sequent {
 }
 
 // Reverse Contraction Right Rule Limit 1
-func ReverseContractionR(sequent Sequent, formulaIndex int) Sequent {
+func ReverseContractionR(sequent Sequent) Sequent {
+	formulaIndex := len(sequent.Right)-1
 	formulaToDuplicate := sequent.Right[formulaIndex]
 	newRight := append(sequent.Right, formulaToDuplicate)
 
@@ -63,7 +52,8 @@ func ReverseContractionR(sequent Sequent, formulaIndex int) Sequent {
 }
 
 // Reverse Contraction Left Rule Limit 1
-func ReverseContractionL(sequent Sequent, formulaIndex int) Sequent {
+func ReverseContractionL(sequent Sequent) Sequent {
+	formulaIndex := 0
 	formulaToDuplicate := sequent.Left[formulaIndex]
 	newLeft := append(sequent.Left, formulaToDuplicate)
 
@@ -91,7 +81,8 @@ func ReverseExchangeR(sequent Sequent, index1 int, index2 int) Sequent {
 }
 
 // Negation Left (¬L) Rule limit only having negation
-func NegationL(sequent Sequent, formulaIndex int) Sequent {
+func NegationL(sequent Sequent) Sequent {
+	formulaIndex := 0
 	if formulaIndex < len(sequent.Left) {
 		formula := sequent.Left[formulaIndex]
 		if strings.HasPrefix(formula.Content, "¬") {
@@ -112,7 +103,8 @@ func NegationL(sequent Sequent, formulaIndex int) Sequent {
 }
 
 // Negation Right (¬R) Rule limit only having negation
-func NegationR(sequent Sequent, formulaIndex int) Sequent {
+func NegationR(sequent Sequent) Sequent {
+	formulaIndex := len(sequent.Right) -1
 	if formulaIndex < len(sequent.Right) {
 		formula := sequent.Right[formulaIndex]
 		if strings.HasPrefix(formula.Content, "¬") {
@@ -137,7 +129,8 @@ func NegationR(sequent Sequent, formulaIndex int) Sequent {
 }
 
 // Implication Right (⊃R) Rule 常に右端
-func ImplicationR(sequent Sequent, formulaIndex int /*the tail*/) Sequent {
+func ImplicationR(sequent Sequent) Sequent {
+	formulaIndex := len(sequent.Right) -1
 	if formulaIndex < len(sequent.Right) {
 		formula := sequent.Right[formulaIndex]
 
@@ -166,7 +159,8 @@ func ImplicationR(sequent Sequent, formulaIndex int /*the tail*/) Sequent {
 }
 
 // Reverse Disjunction Right 1 (Reverse ∨R1) Rule
-func ReverseDisjunctionR1(sequent Sequent, formulaIndex int /*only tail*/) Sequent {
+func ReverseDisjunctionR1(sequent Sequent) Sequent {
+formulaIndex 	:= len(sequent.Right) -1
 	if formulaIndex < len(sequent.Right) {
 		parts := strings.Split(sequent.Right[formulaIndex].Content, " ∨ ")
 		if len(parts) > 1 {
@@ -179,7 +173,8 @@ func ReverseDisjunctionR1(sequent Sequent, formulaIndex int /*only tail*/) Seque
 }
 
 // Reverse Disjunction Right 2 (Reverse ∨R2) Rule
-func ReverseDisjunctionR2(sequent Sequent, formulaIndex int /*only tail*/) Sequent {
+func ReverseDisjunctionR2(sequent Sequent) Sequent {
+	formulaIndex  := len(sequent.Right) -1
 	if formulaIndex < len(sequent.Right) {
 		parts := strings.Split(sequent.Right[formulaIndex].Content, " ∨ ")
 		if len(parts) > 1 {
@@ -193,7 +188,8 @@ func ReverseDisjunctionR2(sequent Sequent, formulaIndex int /*only tail*/) Seque
 
 
 // Conjunction Left 1 (∧L1) Rule
-func ConjunctionL1(sequent Sequent, formulaIndex int) Sequent {
+func ConjunctionL1(sequent Sequent) Sequent {
+	formulaIndex  := 0
 	if formulaIndex < len(sequent.Left) {
 		parts := strings.Split(sequent.Left[formulaIndex].Content, " ∧ ")
 		if len(parts) > 1 {
@@ -206,7 +202,8 @@ func ConjunctionL1(sequent Sequent, formulaIndex int) Sequent {
 }
 
 // Conjunction Left 2 (∧L2) Rule
-func ConjunctionL2(sequent Sequent, formulaIndex int) Sequent {
+func ConjunctionL2(sequent Sequent) Sequent {
+	formulaIndex  := 0
 	if formulaIndex < len(sequent.Left) {
 		parts := strings.Split(sequent.Left[formulaIndex].Content, " ∧ ")
 		if len(parts) > 1 {
@@ -229,34 +226,34 @@ func main() {
 	   sequent := Sequent{Left: gamma, Right: delta}
 
 	   //contR
-	   t := ReverseContractionR(sequent,len(sequent.Right)-1)
+	   t := ReverseContractionR(sequent)
 	   fmt.Println(t)
 	   // R1
-	   t = ReverseDisjunctionR1(t,len(t.Right)-1)
+	   t = ReverseDisjunctionR1(t)
 	   fmt.Println(t)
 
 	    t = ReverseExchangeR(t,0,1)
 	   fmt.Println(t)
 
-	   t = ReverseDisjunctionR2(t,len(t.Right)-1)
+	   t = ReverseDisjunctionR2(t)
 	   fmt.Println(t)
 
-	   t = ImplicationR(t,len(t.Right)-1)
+	   t = ImplicationR(t)
 	   fmt.Println(t)
 
 	   t = ReverseExchangeR(t,0,1)
 	   fmt.Println(t)
 
-	   t = ImplicationR(t,len(t.Right)-1)
+	   t = ImplicationR(t)
 	   fmt.Println(t)
 
 	   t = ReverseExchangeL(t, 0,1)
 	   fmt.Println(t)
 
-	   t = ReverseWeakeningL(t,0)
+	   t = ReverseWeakeningL(t)
 	   fmt.Println(t)
 
-	   t = ReverseWeakeningR(t,len(t.Right)-1)
+	   t = ReverseWeakeningR(t)
 	   fmt.Println(t)
 
 	}
@@ -288,16 +285,16 @@ func main() {
 	fmt.Println("Original Sequent:", sequent)
 
 	// Apply Reverse Weakening Left
-	reversedWeakenedSequentL := ReverseWeakeningL(sequent, 0) // Remove "B" from Left
+	reversedWeakenedSequentL := ReverseWeakeningL(sequent) // Remove "B" from Left
 
 	// Apply Reverse Contraction Right
-	reversedContractedSequentR := ReverseContractionR(sequent, len(sequent.Right)-1) // Duplicate "C" in Right
+	reversedContractedSequentR := ReverseContractionR(sequent) // Duplicate "C" in Right
 
 	// Apply Reverse Weakening Right
-	reversedWeakenedSequentR := ReverseWeakeningR(sequent, len(sequent.Right)-1) // Remove "D" from Right
+	reversedWeakenedSequentR := ReverseWeakeningR(sequent) // Remove "D" from Right
 
 	// Apply Reverse Contraction Left
-	reversedContractedSequentL := ReverseContractionL(sequent, 0) // Duplicate "E" in Left
+	reversedContractedSequentL := ReverseContractionL(sequent) // Duplicate "E" in Left
 
 	// Apply Reverse Exchange Left
 	reversedExchangedSequentL := ReverseExchangeL(sequent, 0, 1) // Swap "A" and "E" in Left
@@ -325,7 +322,7 @@ func main() {
 		fmt.Println("Original Sequent:", sequent)
 
 		// Apply Implication Right (⊃R) to the formula "C ⊃ D" in Right
-		implicationRSequent := ImplicationR(sequent, len(sequent.Right)-1) // Adds "C" to Left and replaces "C ⊃ D" with "D" in Right
+		implicationRSequent := ImplicationR(sequent) // Adds "C" to Left and replaces "C ⊃ D" with "D" in Right
 
 		fmt.Println("After Applying Implication Right (⊃R):", implicationRSequent)
 
@@ -339,10 +336,10 @@ func main() {
 		fmt.Println("Original Sequent:", sequent)
 
 		// Apply Reverse Disjunction Right 1 (Reverse ∨R1)
-		//	reverseDisjunctionR1Sequent := ReverseDisjunctionR1(sequent, len(sequent.Right)-1) // Keeps "C" from "C ∨ D"
+		//	reverseDisjunctionR1Sequent := ReverseDisjunctionR1(sequent) // Keeps "C" from "C ∨ D"
 
 		// Apply Reverse Disjunction Right 2 (Reverse ∨R2)
-		reverseDisjunctionR2Sequent := ReverseDisjunctionR2(sequent, len(sequent.Right)-1) // Keeps "F" from "E ∨ F"
+		reverseDisjunctionR2Sequent := ReverseDisjunctionR2(sequent) // Keeps "F" from "E ∨ F"
 
 		//	fmt.Println("After Applying Reverse Disjunction Right 1 (Reverse ∨R1):", reverseDisjunctionR1Sequent)
 		fmt.Println("After Applying Reverse Disjunction Right 2 (Reverse ∨R2):", reverseDisjunctionR2Sequent)
@@ -357,10 +354,10 @@ func main() {
 	fmt.Println("Original Sequent:", sequent)
 
 	// Apply Conjunction Left 1 (∧L1)
-	//conjunctionL1Sequent := ConjunctionL1(sequent, 0) // Keeps "A" from "A ∧ B"
+	//conjunctionL1Sequent := ConjunctionL1(sequent) // Keeps "A" from "A ∧ B"
 
 	// Apply Conjunction Left 2 (∧L2)
-	conjunctionL2Sequent := ConjunctionL2(sequent, 0) // Keeps "D" from "C ∧ D"
+	conjunctionL2Sequent := ConjunctionL2(sequent) // Keeps "D" from "C ∧ D"
 
 	//fmt.Println("After Applying Conjunction Left 1 (∧L1):", conjunctionL1Sequent)
 	fmt.Println("After Applying Conjunction Left 2 (∧L2):", conjunctionL2Sequent)
